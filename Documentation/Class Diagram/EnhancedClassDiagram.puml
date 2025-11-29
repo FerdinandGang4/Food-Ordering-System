@@ -1,0 +1,207 @@
+@startuml
+title Enhanced System Diagram with Data Access Layer & Services
+
+skinparam packageStyle rectangle
+
+' =====================
+'   ENTITIES
+' =====================
+
+package "Domain Entities" {
+
+class User <<entity>> {
+    userid
+    password
+    firstName
+    email
+    phoneNumber
+}
+
+class Address <<entity>> {
+    Street
+    City
+    State
+    PostalCode
+}
+
+class Customer <<entity>> { }
+class Vendor <<entity>> { }
+class Admin <<entity>> { }
+
+class CreditCard <<entity>> {
+    number
+    ExpDate
+}
+
+class Cart <<entity>> {
+    totalCost
+}
+
+class Order <<entity>> {
+    orderId
+    status
+    totalCost
+    date
+}
+
+class OrderLine <<entity>> {
+
+}
+
+class Item <<entity>> {
+    name
+    description
+    cost
+}
+
+class Menu <<entity>> { }
+
+class Category <<entity>> { }
+
+class Rating <<entity>> { }
+
+' >>> New Payment entity added <<<
+class Payment <<entity>> {
+    paymentId
+    amount
+    paymentDate
+    method
+}
+
+}
+
+
+' =====================
+'   RELATIONSHIPS
+' =====================
+
+User "1" --> "1" Address : lives at
+
+User <|-- Customer
+User <|-- Vendor
+User <|-- Admin
+
+Customer "1" --> "1..*" CreditCard : has
+Customer "1" --> "1" Cart : has
+Customer "1" --> "0..*" Order : places
+Vendor "1" --> "0..*" Order : completes
+
+Order "1" --> "0..*" OrderLine
+OrderLine "1" --> "1" Item
+Item --> Category : belongs to
+Menu "1" --> "0..*" Item : contains
+Customer "0..*" --> Rating
+
+' >>> New relationships for Payment <<<
+Payment "1" --> "1" CreditCard : uses >
+Payment "1" --> "1" Order : pays for >
+
+
+' =====================
+'  DATA ACCESS LAYER (Repositories)
+' =====================
+
+package "Data Access Layer" {
+
+interface UserRepository <<repository>> {
+    + findById(id)
+    + save(user)
+}
+
+interface CustomerRepository <<repository>> {
+    + findById(id)
+    + save(customer)
+}
+
+interface VendorRepository <<repository>> {
+    + findById(id)
+    + save(vendor)
+}
+
+interface OrderRepository <<repository>> {
+    + findById(id)
+    + save(order)
+    + findByCustomer(customerId)
+}
+
+interface ItemRepository <<repository>> {
+    + findById(id)
+    + listAll()
+}
+
+interface RatingRepository <<repository>> {
+    + save(rating)
+    + findByCustomer(customerId)
+}
+
+' Optional implementation classes
+class UserRepositoryImpl
+class CustomerRepositoryImpl
+class VendorRepositoryImpl
+class OrderRepositoryImpl
+class ItemRepositoryImpl
+class RatingRepositoryImpl
+
+UserRepository <|.. UserRepositoryImpl
+CustomerRepository <|.. CustomerRepositoryImpl
+VendorRepository <|.. VendorRepositoryImpl
+OrderRepository <|.. OrderRepositoryImpl
+ItemRepository <|.. ItemRepositoryImpl
+RatingRepository <|.. RatingRepositoryImpl
+
+}
+
+
+' =====================
+'  SERVICE LAYER
+' =====================
+
+package "Service Layer" {
+
+class UserService <<service>> {
+    + registerUser()
+    + login()
+}
+
+class CustomerService <<service>> {
+    + updateProfile()
+    + addCreditCard()
+}
+
+class VendorService <<service>> {
+    + fulfillOrder()
+}
+
+class OrderService <<service>> {
+    + placeOrder()
+    + cancelOrder()
+}
+
+class ItemService <<service>> {
+    + listItems()
+    + findItem()
+}
+
+class RatingService <<service>> {
+    + addRating()
+    + getRatings()
+}
+
+}
+
+
+' =====================
+'  SERVICE → REPOSITORY USAGE
+' =====================
+
+UserService --> UserRepository
+CustomerService --> CustomerRepository
+CustomerService --> CreditCard
+VendorService --> VendorRepository
+VendorService --> OrderRepository
+OrderService --> OrderRepository
+OrderService --> CustomerRepository
+ItemService --> ItemRepository
+RatingService --> RatingRepository
+
+@enduml
