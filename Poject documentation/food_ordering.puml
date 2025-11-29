@@ -1,0 +1,74 @@
+@startuml
+title Customer Food Ordering (Checkout)
+
+actor Customer
+participant "Mobile/Web UI" as UI
+box "MIU Food Ordering System"
+    participant "CartService" as CS
+    participant "OrderService" as OS
+    participant "PaymentGateway" as PG
+    database "Database" as DB
+end box
+
+activate Customer
+Customer -> UI: Clicks 'View Cart'
+
+activate UI
+UI -> CS: fetchCartDetails(userId)
+activate CS
+CS -> DB: queryCartItems(userId)
+activate DB
+DB --> CS: return Cart(items, totalAmount)
+deactivate DB
+CS --> UI: displayCartDetails
+deactivate CS
+
+UI -> Customer: Shows final order details and total
+
+Customer -> UI: Clicks 'Checkout' (FR2.4)
+UI -> Customer: Selects Payment Method (e.g., Card) (FR2.4/US-C9)
+Customer -> UI: Enters Delivery Details
+
+UI -> OS: placeOrder(userId, cartItems, deliveryDetails, paymentDetails)
+activate OS
+
+' ---------------- Order Validation and Creation ----------------
+OS -> OS: validateOrderDetails()
+OS -> CS: lockCart(userId)
+activate CS
+CS --> OS: confirmLock
+deactivate CS
+
+OS -> PG: processPayment(totalAmount, paymentDetails) (FR5.3)
+activate PG
+PG -> PG: securelyProcessTransaction() (NFR2.4)
+alt Payment Successful
+    PG --> OS: return transactionId
+else Payment Failed
+    PG --> OS: return failureStatus
+    OS -> CS: unlockCart(userId)
+    OS --> UI: sendError("Payment Failed")
+    deactivate OS
+end
+deactivate PG
+
+' ---------------- Finalize Order ----------------
+OS -> DB: createNewOrder(userId, items, txnId, status="Placed")
+activate DB
+DB --> OS: return orderId
+deactivate DB
+
+OS -> CS: clearCart(userId)
+activate CS
+CS --> OS: confirmClear
+deactivate CS
+
+OS -> UI: sendOrderConfirmation(orderId) (FR5.1 - Notification)
+deactivate OS
+
+UI -> Customer: Show "Order Placed Successfully"
+UI -> UI: Redirect to Order Tracking screen (FR2.5)
+deactivate UI
+deactivate Customer
+
+@enduml
