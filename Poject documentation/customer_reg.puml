@@ -1,0 +1,68 @@
+@startuml
+title Customer Registration
+
+actor Customer
+participant "Mobile/Web UI" as UI
+box "MIU Food Ordering System"
+    participant "AuthService" as AS
+    participant "UserService" as US
+    database "Database" as DB
+end box
+
+activate Customer
+Customer -> UI: Clicks 'Sign Up' (Main Flow Step 1)
+activate UI
+UI -> Customer: Displays registration form (Main Flow Step 2)
+
+Customer -> UI: Enters details (Name, Email, Password, Role="Customer") (Main Flow Step 3)
+
+UI -> AS: registerUser(Name, Email, Password, Role)
+activate AS
+
+' ---------------- Input Validation ----------------
+AS -> AS: validateInput()
+alt Required field missing
+    AS --> UI: sendError("Missing required field") (Alternate Flow)
+    UI --> Customer: Show error message
+    deactivate UI
+    deactivate AS
+    
+end ' <--- End of alt block
+
+' ---------------- Email Check ----------------
+AS -> US: checkEmailExists(Email)
+activate US
+US -> DB: queryUserByEmail(Email)
+activate DB
+DB --> US: return (Email already exists / null)
+deactivate DB
+
+alt Email already exists
+    US --> AS: return true
+    deactivate US
+    AS --> UI: sendError("Account already exists") (Alternate Flow)
+    UI --> Customer: Show "Account already exists"
+    deactivate UI
+    deactivate AS
+    
+else Email is new
+    US --> AS: return false
+    deactivate US
+end ' <--- End of alt/else block
+
+' ---------------- Account Creation ----------------
+AS -> AS: hashPassword(Password) (NFR2.2)
+AS -> DB: storeNewUser(HashedPwd, Details, Role="Customer") (Main Flow Step 5)
+activate DB
+DB --> AS: confirmUserCreation(userId)
+deactivate DB
+
+AS --> UI: confirmSuccess(userId) (Main Flow Step 6)
+deactivate AS
+
+UI -> Customer: Shows "Registration Successful"
+UI -> UI: Redirects to Login/Dashboard
+deactivate UI
+deactivate Customer
+
+@enduml
