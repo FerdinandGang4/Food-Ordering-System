@@ -1,13 +1,41 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>frontend-react</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+    <title>Orders</title>
+    <link rel="stylesheet" href="src/index.css">
+</head>
+<body>
+    <h2>Orders</h2>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>S NO</th>
+                    <th>Name</th>
+                    <th>Address</th>
+                    <th>Product Name</th>
+                    <th>Category</th>
+                    <th class="center">Quantity</th>
+                    <th>Total Price</th>
+                    <th>Order Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td><span class="highlight">arif khan</span></td>
+                    <td><span class="highlight">main street</span></td>
+                    <td>Monitor</td>
+                    <td>Electronic</td>
+                    <td class="center">2</td>
+                    <td class="price">$1000.00</td>
+                    <td>3/18/2025</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</body>
 </html>
