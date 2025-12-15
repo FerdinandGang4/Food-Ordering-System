@@ -13,7 +13,7 @@ function Header() {
             Sign In
           </button>
         </Link>
-        <Link to={"/register"}><button className="bg-sky-700 text-white px-4 py-2 rounded-md shadow-sm hover:brightness-95 link-pointer">
+        <Link to={"/register"}><button className="bg-purple-700 text-white px-4 py-2 rounded-md shadow-sm hover:brightness-95 link-pointer">
           Sign Up
         </button></Link>
       </nav>
