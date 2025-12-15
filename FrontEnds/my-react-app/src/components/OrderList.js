@@ -6,13 +6,24 @@ function OrderList() {
   const [loading, setLoading] = useState(true);
   const [view, setView] = useState("list"); // 'list' or 'create'
 
-  // Form state
-  const [userId, setUserId] = useState("");
-  const [status, setStatus] = useState("");
-  const [totalPrice, setTotalPrice] = useState("");
-  const [items, setItems] = useState([{ productId: "", quantity: "", price: "" }]);
-  const [shippingAddress, setShippingAddress] = useState({ street: "", city: "", zip: "" });
-  const [billingAddress, setBillingAddress] = useState({ street: "", city: "", zip: "" });
+  // Pre-fill form with sample JSON values
+  const [userId, setUserId] = useState(45);
+  const [status, setStatus] = useState("CREATED");
+  const [totalPrice, setTotalPrice] = useState(120.50);
+  const [items, setItems] = useState([
+    { productId: 106, quantity: 2, price: 25.50 },
+    { productId: 99, quantity: 1, price: 66.50 }
+  ]);
+  const [shippingAddress, setShippingAddress] = useState({
+    street: "123 Main St",
+    city: "New Cameroon",
+    zip: "10001"
+  });
+  const [billingAddress, setBillingAddress] = useState({
+    street: "456 Elm St",
+    city: "New York",
+    zip: "10002"
+  });
 
   const orderStatusOptions = ["CREATED", "CONFIRMED", "PAID", "CANCELLED", "DELIVERED"];
 
@@ -50,29 +61,8 @@ function OrderList() {
     createOrder(orderRequest)
       .then(() => {
         loadOrders();
-        setView("list"); // Back to order list
-        // Reset form
-        setUserId("");
-        setStatus("");
-        setTotalPrice("");
-        setItems([{ productId: "", quantity: "", price: "" }]);
-        setShippingAddress({ street: "", city: "", zip: "" });
-        setBillingAddress({ street: "", city: "", zip: "" });
+        setView("list"); // Back to orders list
       })
-      .catch(err => console.error(err));
-  };
-
-  const handleDelete = (id) => {
-    deleteOrder(id)
-      .then(() => loadOrders())
-      .catch(err => console.error(err));
-  };
-
-  const handleUpdate = (orderId, newStatus) => {
-    const order = orders.find(o => o.id === orderId);
-    const updatedOrder = { ...order, status: newStatus };
-    updateOrder(orderId, updatedOrder)
-      .then(() => loadOrders())
       .catch(err => console.error(err));
   };
 
@@ -84,7 +74,6 @@ function OrderList() {
         <div>
           <h2>All Orders</h2>
           <button onClick={() => setView("create")}>Create New Order</button>
-
           {orders.map(order => (
             <div key={order.id} style={{ border: "1px solid #ccc", margin: "10px", padding: "10px" }}>
               <h3>Orders #{order.id}</h3>
@@ -93,7 +82,10 @@ function OrderList() {
                 <strong>Status:</strong>{" "}
                 <select
                   value={order.status}
-                  onChange={(e) => handleUpdate(order.id, e.target.value)}
+                  onChange={(e) => {
+                    const updatedStatus = e.target.value;
+                    updateOrder(order.id, { ...order, status: updatedStatus }).then(loadOrders);
+                  }}
                 >
                   {orderStatusOptions.map((s, index) => (
                     <option key={index} value={s}>{s}</option>
@@ -102,10 +94,7 @@ function OrderList() {
               </p>
               <p><strong>Total Price:</strong> ${order.totalPrice}</p>
               <p><strong>Created At:</strong> {new Date(order.createdAt).toLocaleString()}</p>
-
-              <button onClick={() => handleDelete(order.id)} style={{ marginRight: "10px" }}>
-                Delete
-              </button>
+              <button onClick={() => deleteOrder(order.id).then(loadOrders)}>Delete</button>
             </div>
           ))}
         </div>
@@ -118,6 +107,7 @@ function OrderList() {
 
           <input
             placeholder="User ID"
+            type="number"
             value={userId}
             onChange={e => setUserId(e.target.value)}
           />
@@ -136,7 +126,76 @@ function OrderList() {
             onChange={e => setTotalPrice(e.target.value)}
           />
 
-          {/* Items, shippingAddress, billingAddress inputs */}
+          <h3>Items</h3>
+          {items.map((item, index) => (
+            <div key={index}>
+              <input
+                placeholder="Product ID"
+                type="number"
+                value={item.productId}
+                onChange={e => {
+                  const newItems = [...items];
+                  newItems[index].productId = e.target.value;
+                  setItems(newItems);
+                }}
+              />
+              <input
+                placeholder="Quantity"
+                type="number"
+                value={item.quantity}
+                onChange={e => {
+                  const newItems = [...items];
+                  newItems[index].quantity = e.target.value;
+                  setItems(newItems);
+                }}
+              />
+              <input
+                placeholder="Price"
+                type="number"
+                value={item.price}
+                onChange={e => {
+                  const newItems = [...items];
+                  newItems[index].price = e.target.value;
+                  setItems(newItems);
+                }}
+              />
+            </div>
+          ))}
+
+          <h3>Shipping Address</h3>
+          <input
+            placeholder="Street"
+            value={shippingAddress.street}
+            onChange={e => setShippingAddress({ ...shippingAddress, street: e.target.value })}
+          />
+          <input
+            placeholder="City"
+            value={shippingAddress.city}
+            onChange={e => setShippingAddress({ ...shippingAddress, city: e.target.value })}
+          />
+          <input
+            placeholder="ZIP"
+            value={shippingAddress.zip}
+            onChange={e => setShippingAddress({ ...shippingAddress, zip: e.target.value })}
+          />
+
+          <h3>Billing Address</h3>
+          <input
+            placeholder="Street"
+            value={billingAddress.street}
+            onChange={e => setBillingAddress({ ...billingAddress, street: e.target.value })}
+          />
+          <input
+            placeholder="City"
+            value={billingAddress.city}
+            onChange={e => setBillingAddress({ ...billingAddress, city: e.target.value })}
+          />
+          <input
+            placeholder="ZIP"
+            value={billingAddress.zip}
+            onChange={e => setBillingAddress({ ...billingAddress, zip: e.target.value })}
+          />
+
           <button onClick={handleCreateOrder}>Create Order</button>
         </div>
       )}
