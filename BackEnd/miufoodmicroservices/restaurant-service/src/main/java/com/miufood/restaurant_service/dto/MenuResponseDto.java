@@ -10,6 +10,8 @@ import java.math.BigDecimal;
 public class MenuResponseDto {
     private Long id;
     private String name;
+    private String description;
     private BigDecimal price;
+    private String category;
     private Boolean available;
 }

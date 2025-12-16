@@ -13,6 +13,8 @@ public class Mapper {
             return MenuResponseDto.builder()
                     .id(menuItem.getId())
                     .name(menuItem.getName())
+                    .description(menuItem.getDescription())
+                    .category(menuItem.getCategory())
                     .price(menuItem.getPrice())
                     .available(menuItem.getAvailable())
                     .build();
