@@ -15,60 +15,36 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-    private final  JwtAuthenticationEntryPoint JwtAuthenticationEntryPoint;
+    private final JwtAuthenticationEntryPoint JwtAuthenticationEntryPoint;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
-        private final AuthenticationProvider authenticationProvider;
-        private final JwtAuthFilter jwtAuthFilter;
+    private final AuthenticationProvider authenticationProvider;
+    private final JwtAuthFilter jwtAuthFilter;
 
-        @Bean
-        public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-
-
-
-
-            http
-                    .csrf(AbstractHttpConfigurer::disable)
-                    .authorizeHttpRequests(auth -> auth
-                            .requestMatchers(
-                                    "/auth/register",
-                                    "/auth/login"
-                            ).permitAll()
-                            .anyRequest().authenticated()
-                    )
-                    .sessionManagement(session -> session
-                            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                    )
-                    //added for 401, 403
-                    .exceptionHandling(ex-> ex
-                                    .authenticationEntryPoint(JwtAuthenticationEntryPoint)
-                                    .accessDeniedHandler(customAccessDeniedHandler)
-                            )
-                    //ended
-                    .authenticationProvider(authenticationProvider)
-                    .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
-
-            return http.build();
-        }
-    }
-
-
-    /*
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception{
-        httpSecurity.csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(
-                        auth-> auth
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/vendor/**").hasRole("VENDOR")
-                        .requestMatchers("/api/customer/**").hasRole("CUSTOMER")
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
+
+        http
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                "/auth/register",
+                                "/auth/login"
+                        ).permitAll()
                         .anyRequest().authenticated()
-                ).sessionManagement(
-                        session->session
-                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                        )
+                )
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                //added for 401, 403
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(JwtAuthenticationEntryPoint)
+                        .accessDeniedHandler(customAccessDeniedHandler)
+                )
+                //ended
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
-        return httpSecurity.build();
+
+        return http.build();
     }
-*/
+}

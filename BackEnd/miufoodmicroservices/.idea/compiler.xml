@@ -3,17 +3,14 @@
   <component name="CompilerConfiguration">
     <annotationProcessing>
       <profile default="true" name="Default" enabled="true" />
-      <profile name="Annotation profile for orderservice" enabled="true">
+      <profile name="Maven default annotation processors profile" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="false">
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.42/lombok-1.18.42.jar" />
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.42/lombok-1.18.42.jar" />
-        </processorPath>
-        <module name="orderservice" />
+        <module name="auth-service" />
+        <module name="payment-service" />
       </profile>
-      <profile name="Annotation profile for FinalProjectRestaurantMicroservice" enabled="true">
+      <profile name="Annotation profile for email-service" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -21,15 +18,30 @@
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.42/lombok-1.18.42.jar" />
         </processorPath>
         <module name="FinalProjectRestaurantMicroservice" />
+        <module name="email-service" />
+        <module name="orderservice" />
         <module name="cartservice" />
+      </profile>
+      <profile name="Annotation profile for restaurant-service" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.30/lombok-1.18.30.jar" />
+        </processorPath>
+        <module name="restaurant-service" />
       </profile>
     </annotationProcessing>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="FinalProjectRestaurantMicroservice" options="-parameters" />
+      <module name="auth-service" options="-parameters" />
       <module name="cartservice" options="-parameters" />
+      <module name="email-service" options="-parameters" />
       <module name="orderservice" options="-parameters" />
+      <module name="payment-service" options="-parameters" />
+      <module name="restaurant-service" options="-parameters" />
     </option>
   </component>
 </project>

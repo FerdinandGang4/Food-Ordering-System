@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/cartitems")
 @RequiredArgsConstructor
+@CrossOrigin
 public class CartItemController {
     private final CartItemService cartItemService;
 

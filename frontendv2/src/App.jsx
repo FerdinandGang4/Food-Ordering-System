@@ -10,6 +10,7 @@ import Header from './pages/Header';
 import RegisterForm from './components/auth/RegisterForm';
 import Checkout from './pages/Checkout';
 import VendorMenu from './pages/VendorMenu';
+import OrdersV1 from './pages/OrdersV1';
 
 function App() {
   return (
@@ -20,6 +21,8 @@ function App() {
       <Route path="/register" element={<RegisterForm />} />
       <Route path="/checkout" element={<Checkout />} />
       <Route path="/vendor/menu" element={<VendorMenu />} />
+       <Route path="/orders" element={<OrdersV1 />} />
+
     </Routes>
     </>
     
