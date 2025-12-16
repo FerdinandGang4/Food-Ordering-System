@@ -14,12 +14,12 @@ spring:
       server:
         webflux:
           routes:
-            - id: product-service
-              uri: http://localhost:8082
+            - id: payment-service
+              uri: http://localhost:4000
               predicates:
-                - Path=/products,/products/**
+                - Path=/api/payments/**
             - id: order-service
-              uri: http://localhost:8081
+              uri: http://localhost:9090
               predicates:
                 - Path=/orders,/orders/**
 
@@ -27,3 +27,19 @@ spring:
               uri: http://localhost:8085
               predicates:
                 - Path=/auth/**
+
+            - id: cart-service
+              uri: http://localhost:9190
+              predicates:
+                - Path=/carts/**,/cartitems/**
+
+            - id: restaurant-service
+              uri: http://localhost:9098
+              predicates:
+                - Path=/api/restaurants/**
+
+            - id: email-service
+              uri: http://localhost:4001
+              predicates:
+                - Path=/api/emails/**
+
