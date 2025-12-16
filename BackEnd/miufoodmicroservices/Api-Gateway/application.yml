@@ -2,8 +2,6 @@ server:
   port: 8080
 
 
-jwt:
-  secret: mysecretkey12345678901hfkjhkjdhkhksjdgfhjgjdkjkhfkdh23456
 
 spring:
   application:

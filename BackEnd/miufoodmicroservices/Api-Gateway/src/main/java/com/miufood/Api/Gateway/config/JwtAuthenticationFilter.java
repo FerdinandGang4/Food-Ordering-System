@@ -20,8 +20,8 @@ import java.util.Date;
 @Component
 public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
 
-    @Value("${jwt.secret}")
-    private String secret;
+    //@Value("${jwt.secret}")
+    private final String secret ="mysecretkey12345678901hfkjhkjdhkhksjdgfhjgjdkjkhfkdh23456";
     private Key getSigningKey() {
         return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
