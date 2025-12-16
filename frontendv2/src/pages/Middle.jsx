@@ -3,6 +3,8 @@ import Filters from '../components/Filters';
 import MenuCard from '../components/MenuCard';
 import CartSidebar from '../components/CartSidebar';
 import { CartContext } from '../components/CartContext';
+import axios from 'axios';
+import { fetchRestaurants, fetchMenuByRestaurant } from '../services/Restaurant_service';
 
 function Middle() {
   const [restaurants, setRestaurants] = useState([]);
@@ -15,25 +17,42 @@ function Middle() {
 
   // Load data — try API if configured, otherwise use mock data
   useEffect(() => {
-    // Mock restaurants
-    const mockRestaurants = [
-      { id: 1, name: 'Pasta Place', cuisine: 'Italian', img: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80' },
-      { id: 2, name: 'Burger House', cuisine: 'Fast Food', img: 'https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=400&q=80' },
-      { id: 3, name: 'Sushi Spot', cuisine: 'Japanese', img: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80' },
-    ];
+    const fetchData = async () => {
+      try {
+        const response = await fetchRestaurants();
+        // Add default images if not provided by backend
+        const defaultImages = [
+          'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80',
+          'https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=400&q=80',
+          'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80',
+          'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=400&q=80',
+          'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=400&q=80'
+        ];
+        const restaurantsWithImages = response.data.map((r, index) => ({
+          ...r,
+          img: r.img || defaultImages[index % defaultImages.length]
+        }));
+        setRestaurants(restaurantsWithImages);
 
-    // Mock menu items
-    const mockMenu = [
-      { id: 'm1', name: 'Spaghetti Carbonara', description: 'Classic Roman pasta', price: 12.5, category: 'Pasta', restaurantId: 1 },
-      // { id: 'm2', name: 'Margherita Pizza', description: 'Tomato, mozzarella, basil', price: 10.0, category: 'Pizza', restaurantId: 1 },
-      { id: 'm3', name: 'Cheeseburger', description: 'Beef patty with cheese', price: 9.5, category: 'Burgers', restaurantId: 2 },
-      { id: 'm4', name: 'Fries', description: 'Crispy fries', price: 3.5, category: 'Sides', restaurantId: 2 },
-      // { id: 'm5', name: 'Salmon Nigiri', description: 'Fresh salmon on rice', price: 4.0, category: 'Sushi', restaurantId: 2 },
-      { id: 'm6', name: 'California Roll', description: 'Crab & avocado', price: 6.5, category: 'Sushi', restaurantId: 3 },
-    ];
+        // Fetch menus for all restaurants
+        const allMenus = [];
+        for (const r of restaurantsWithImages) {
+          try {
+            const menuRes = await fetchMenuByRestaurant(r.id);
+            const menus = Array.isArray(menuRes.data) ? menuRes.data.map(item => ({ ...item, restaurantId: r.id })) : [];
+            allMenus.push(...menus);
+          } catch (err) {
+            console.error(`Error fetching menu for restaurant ${r.id}:`, err);
+          }
+        }
+        setMenuItems(allMenus);
+      } catch (error) {
+        console.error('Error fetching restaurants:', error);
+       
+      }
+    };
 
-    setRestaurants(mockRestaurants);
-    setMenuItems(mockMenu);
+    fetchData();
   }, []);
 
   const categories = useMemo(() => {

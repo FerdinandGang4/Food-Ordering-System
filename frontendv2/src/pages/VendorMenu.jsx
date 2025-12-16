@@ -1,101 +1,121 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { fetchMenuByRestaurant, createMenuItem, updateMenuItem, deleteMenuItem } from "../services/Restaurant_service";
+
+// Assume restaurantId is 1 for now (in a real app, get from auth or props)
+const restaurantId = 1;
 
 // Mock initial menu data
-const initialMenus = [
-  { id: 1, name: "Pasta Place", description: "Italian classics", cuisine: "Italian", address: "123 Main St", image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80" },
-  { id: 2, name: "Burger House", description: "Best burgers in town", cuisine: "Fast Food", address: "456 Burger Ave", image: "https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=400&q=80" },
+const initialMenuItems = [
+  { id: 1, name: "Spaghetti Carbonara", description: "Classic Roman pasta", price: 12.5, category: "Pasta" },
+  { id: 2, name: "Cheeseburger", description: "Beef patty with cheese", price: 9.5, category: "Burgers" },
 ];
 
 export default function VendorMenu() {
-  const [menus, setMenus] = useState(initialMenus);
+  const [menuItems, setMenuItems] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(null); // id or null
-  const [form, setForm] = useState({ name: "", description: "", cuisine: "", address: "", image: "" });
-  const [imageFile, setImageFile] = useState(null);
+  const [form, setForm] = useState({ name: "", description: "", price: "", category: "" });
   const [showForm, setShowForm] = useState(false);
+
+  useEffect(() => {
+    loadMenuItems();
+  }, []);
+
+  const loadMenuItems = () => {
+    setLoading(true);
+    fetchMenuByRestaurant(restaurantId)
+      .then(res => {
+        const data = Array.isArray(res.data) ? res.data : [];
+        setMenuItems(data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("Error fetching menu items:", err);
+        setMenuItems(initialMenuItems); // fallback
+        setLoading(false);
+      });
+  };
 
   function handleChange(e) {
     setForm(f => ({ ...f, [e.target.name]: e.target.value }));
   }
 
-  function handleImageChange(e) {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setForm(f => ({ ...f, image: reader.result }));
-        setImageFile(file);
-      };
-      reader.readAsDataURL(file);
-    }
-  }
-
   function handleCreate() {
-    setForm({ name: "", description: "", cuisine: "", address: "", image: "" });
-    setImageFile(null);
+    setForm({ name: "", description: "", price: "", category: "" });
     setEditing(null);
     setShowForm(true);
   }
 
-  function handleEdit(menu) {
-    setForm({ ...menu });
-    setImageFile(null);
-    setEditing(menu.id);
+  function handleEdit(item) {
+    setForm({ ...item });
+    setEditing(item.id);
     setShowForm(true);
   }
 
   function handleDelete(id) {
-    setMenus(menus => menus.filter(m => m.id !== id));
-    if (editing === id) setShowForm(false);
+    deleteMenuItem(restaurantId, id)
+      .then(() => loadMenuItems())
+      .catch(err => console.error("Delete error:", err));
   }
 
   function handleSubmit(e) {
     e.preventDefault();
+    const menuData = {
+      name: form.name,
+      description: form.description,
+      price: parseFloat(form.price),
+      category: form.category
+    };
+
     if (editing) {
-      setMenus(menus => menus.map(m => m.id === editing ? { ...form, id: editing } : m));
+      updateMenuItem(restaurantId, editing, menuData)
+        .then(() => {
+          loadMenuItems();
+          setShowForm(false);
+          setEditing(null);
+        })
+        .catch(err => console.error("Update error:", err));
     } else {
-      setMenus(menus => [...menus, { ...form, id: Date.now() }]);
+      createMenuItem(restaurantId, menuData)
+        .then(() => {
+          loadMenuItems();
+          setShowForm(false);
+        })
+        .catch(err => console.error("Create error:", err));
     }
-    setShowForm(false);
-    setEditing(null);
   }
+
+  if (loading) return <p>Loading menu items...</p>;
 
   return (
     <div className="max-w-3xl mx-auto mt-12 bg-white p-8 rounded-xl shadow">
-      <h2 className="text-2xl font-bold text-purple-700 mb-6">Vendor Menu Management</h2>
-      <button onClick={handleCreate} className="mb-4 bg-gradient-to-r from-purple-600 to-purple-400 text-white px-4 py-2 rounded-lg shadow hover:scale-105 transition-transform">Create New Menu</button>
+      <h2 className="text-2xl font-bold text-purple-700 mb-6">Menu Item Management</h2>
+      <button onClick={handleCreate} className="mb-4 bg-gradient-to-r from-purple-600 to-purple-400 text-white px-4 py-2 rounded-lg shadow hover:scale-105 transition-transform">Create New Menu Item</button>
       <div className="mb-8">
-        <h3 className="font-semibold mb-2">Your Menus</h3>
-        {menus.length === 0 ? (
-          <div className="text-slate-400">No menus yet.</div>
+        <h3 className="font-semibold mb-2">Your Menu Items</h3>
+        {menuItems.length === 0 ? (
+          <div className="text-slate-400">No menu items yet.</div>
         ) : (
           <table className="w-full border text-sm">
             <thead>
               <tr className="bg-purple-50">
-                <th className="p-2">Image</th>
                 <th className="p-2">Name</th>
                 <th className="p-2">Description</th>
-                <th className="p-2">Cuisine</th>
-                <th className="p-2">Address</th>
+                <th className="p-2">Price</th>
+                <th className="p-2">Category</th>
                 <th className="p-2">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {menus.map(menu => (
-                <tr key={menu.id} className="border-t">
-                  <td className="p-2">
-                    {menu.image ? (
-                      <img src={menu.image} alt={menu.name} className="w-16 h-12 object-cover rounded" />
-                    ) : (
-                      <span className="text-slate-300">No image</span>
-                    )}
-                  </td>
-                  <td className="p-2">{menu.name}</td>
-                  <td className="p-2">{menu.description}</td>
-                  <td className="p-2">{menu.cuisine}</td>
-                  <td className="p-2">{menu.address}</td>
+              {menuItems.map(item => (
+                <tr key={item.id} className="border-t">
+                  <td className="p-2">{item.name}</td>
+                  <td className="p-2">{item.description}</td>
+                  <td className="p-2">${item.price}</td>
+                  <td className="p-2">{item.category}</td>
                   <td className="p-2 flex gap-2">
-                    <button onClick={() => handleEdit(menu)} className="text-purple-600 underline">Edit</button>
-                    <button onClick={() => handleDelete(menu.id)} className="text-red-500 underline">Delete</button>
+                    <button onClick={() => handleEdit(item)} className="text-purple-600 underline">Edit</button>
+                    <button onClick={() => handleDelete(item.id)} className="text-red-500 underline">Delete</button>
                   </td>
                 </tr>
               ))}
@@ -114,22 +134,15 @@ export default function VendorMenu() {
             <input name="description" required value={form.description} onChange={handleChange} className="w-full border rounded px-3 py-2" />
           </div>
           <div>
-            <label className="block mb-1 font-medium">Cuisine</label>
-            <input name="cuisine" required value={form.cuisine} onChange={handleChange} className="w-full border rounded px-3 py-2" />
+            <label className="block mb-1 font-medium">Price</label>
+            <input name="price" type="number" step="0.01" required value={form.price} onChange={handleChange} className="w-full border rounded px-3 py-2" />
           </div>
           <div>
-            <label className="block mb-1 font-medium">Address</label>
-            <input name="address" required value={form.address} onChange={handleChange} className="w-full border rounded px-3 py-2" />
-          </div>
-          <div>
-            <label className="block mb-1 font-medium">Image</label>
-            <input type="file" accept="image/*" onChange={handleImageChange} className="w-full border rounded px-3 py-2" />
-            {form.image && (
-              <img src={form.image} alt="preview" className="w-32 h-20 object-cover rounded mt-2" />
-            )}
+            <label className="block mb-1 font-medium">Category</label>
+            <input name="category" required value={form.category} onChange={handleChange} className="w-full border rounded px-3 py-2" />
           </div>
           <button type="submit" className="bg-gradient-to-r from-purple-600 to-purple-400 text-white px-4 py-2 rounded-lg shadow hover:scale-105 transition-transform">
-            {editing ? "Update Menu" : "Create Menu"}
+            {editing ? "Update Item" : "Create Item"}
           </button>
           <button type="button" onClick={() => { setShowForm(false); setEditing(null); }} className="ml-2 text-slate-500 underline">Cancel</button>
         </form>

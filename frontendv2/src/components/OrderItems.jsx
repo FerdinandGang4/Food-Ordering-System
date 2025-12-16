@@ -41,7 +41,8 @@ function OrderList() {
     setLoading(true);
     fetchOrders()
       .then(res => {
-        setOrders(res.data);
+        const ordersData = Array.isArray(res.data) ? res.data : res.data?.orders || [];
+        setOrders(ordersData);
         setLoading(false);
       })
       .catch(err => {
