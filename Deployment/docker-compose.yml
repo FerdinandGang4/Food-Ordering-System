@@ -1,0 +1,22 @@
+services:
+  email-service:
+    build:
+      context: ./email-service
+    ports:
+      - "8082:4000"
+    restart: unless-stopped
+    # networks:
+    #   - foodnet
+
+  # payment-service:
+  #   build:
+  #     context: ./payment-service
+  #   ports:
+  #     - "8082:4000"
+  #   restart: unless-stopped
+    # networks:
+    #   - foodnet
+
+# networks:
+#   foodnet:
+#     driver: bridge
