@@ -3,12 +3,15 @@ import React, { useEffect, useState } from "react";
 
 // ===== Styles =====
 const styles = {
+  /* ===== Page Layout ===== */
   page: {
     background: "#f5f0ff",
     minHeight: "100vh",
     padding: "30px",
     fontFamily: "Arial, sans-serif"
   },
+
+  /* ===== Main Card ===== */
   card: {
     background: "#ffffff",
     maxWidth: "720px",
@@ -17,19 +20,39 @@ const styles = {
     borderRadius: "14px",
     boxShadow: "0 10px 25px rgba(0,0,0,0.12)"
   },
+
+  /* ===== Titles & Sections ===== */
   title: {
     color: "#5b2d8b",
     marginBottom: "18px"
   },
+
   section: {
     marginBottom: "22px"
   },
+
+  sectionTitle: {
+    fontWeight: "bold",
+    color: "#5b2d8b",
+    marginBottom: "6px",
+    fontSize: "14px"
+  },
+
+  /* ===== Typography ===== */
   label: {
     display: "block",
     fontWeight: "bold",
     marginBottom: "6px",
     color: "#5b2d8b"
   },
+
+  mutedText: {
+    color: "#666",
+    fontSize: "13px",
+    lineHeight: "1.4"
+  },
+
+  /* ===== Inputs ===== */
   input: {
     width: "100%",
     padding: "10px",
@@ -37,10 +60,13 @@ const styles = {
     borderRadius: "8px",
     border: "1px solid #ccc"
   },
+
   row: {
     display: "flex",
     gap: "10px"
   },
+
+  /* ===== Buttons ===== */
   buttonPrimary: {
     background: "#7b3fe4",
     color: "#fff",
@@ -51,29 +77,63 @@ const styles = {
     fontWeight: "bold",
     width: "100%"
   },
+
   buttonSecondary: {
     background: "#e6dbff",
     color: "#5b2d8b",
     padding: "10px",
     border: "none",
     borderRadius: "8px",
-    cursor: "pointer",
-    marginBottom: "15px"
+    cursor: "pointer"
   },
+
+  /* ===== Order Cards ===== */
+  orderCard: {
+    border: "1px solid #ddd",
+    padding: "18px",
+    borderRadius: "12px",
+    marginBottom: "18px",
+    background: "#fff"
+  },
+
+  statusBadge: {
+    padding: "4px 10px",
+    borderRadius: "20px",
+    fontSize: "12px",
+    fontWeight: "bold",
+    textTransform: "uppercase",
+    display: "inline-block"
+  },
+
+  divider: {
+    height: "1px",
+    background: "#712525ff",
+    margin: "14px 0"
+  },
+
+  /* ===== Items Table ===== */
+  itemRow: {
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr 1fr",
+    fontSize: "13px",
+    padding: "6px 0"
+  },
+
+  itemHeader: {
+    fontWeight: "bold",
+    borderBottom: "1px solid #ddd",
+    paddingBottom: "6px",
+    marginBottom: "6px"
+  },
+
   itemCard: {
-    background: "#f3edff",
+    background: "#a793ceff",
     padding: "15px",
     borderRadius: "10px",
     marginBottom: "10px"
-  },
-  orderCard: {
-    border: "1px solid #ddd",
-    padding: "15px",
-    borderRadius: "10px",
-    marginBottom: "15px",
-    background: "#fff"
   }
 };
+
 
 import {
   fetchOrders,
@@ -183,40 +243,96 @@ function OrderList() {
 
          {orders.map((order) => (
   <div key={order.id} style={styles.orderCard}>
-    {/* Header */}
-    <div style={{ marginBottom: "10px" }}>
+  {/* ===== Header ===== */}
+  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+    <div>
       <h3 style={{ margin: 0, color: "#5b2d8b" }}>
         Order #{order.id}
       </h3>
-      <small style={{ color: "#777" }}>
-        User ID: {order.userId}
-      </small>
+      <p style={styles.mutedText}>User ID: {order.userId}</p>
     </div>
 
-    {/* Body */}
-    <div style={{ marginBottom: "12px" }}>
-      <p style={{ margin: "6px 0" }}>
-        <strong>Customer:</strong> {order.customerName}
-      </p>
+    <span
+      style={{
+        ...styles.statusBadge,
+        background:
+          order.status === "DELIVERED" ? "#d4f8e8" :
+          order.status === "CANCELLED" ? "#ffe0e0" :
+          "#e6dbff",
+        color: "#5b2d8b"
+      }}
+    >
+      {order.status}
+    </span>
+  </div>
 
-      <p style={{ margin: "6px 0" }}>
-        <strong>Total:</strong>{" "}
-        <span style={{ fontWeight: "bold", color: "#333" }}>
-          ${order.totalPrice}
-        </span>
+  <div style={styles.divider} />
+
+  {/* ===== Order Summary ===== */}
+  <p>
+    <strong>Total Price:</strong>{" "}
+    <span style={{ fontSize: "16px", color: "#333" }}>
+      ${order.totalPrice}
+    </span>
+  </p>
+
+  {/* ===== Items ===== */}
+  <div>
+    <p style={styles.sectionTitle}>Order Items</p>
+
+    <div style={{ ...styles.itemRow, ...styles.itemHeader }}>
+      <span>Product ID</span>
+      <span>Quantity</span>
+      <span>Price</span>
+    </div>
+
+    {order.items?.map((item, index) => (
+      <div key={index} style={styles.itemRow}>
+        <span>{item.productId}</span>
+        <span>{item.quantity}</span>
+        <span>${item.price}</span>
+      </div>
+    ))}
+  </div>
+
+  <div style={styles.divider} />
+
+  {/* ===== Addresses ===== */}
+  <div style={{ display: "flex", gap: "20px" }}>
+    <div style={{ flex: 1 }}>
+      <p style={styles.sectionTitle}>Shipping Address</p>
+      <p style={styles.mutedText}>
+        {order.shippingAddress?.street}<br />
+        {order.shippingAddress?.city},{" "}
+        {order.shippingAddress?.state}{" "}
+        {order.shippingAddress?.zip}
       </p>
     </div>
 
-    {/* Actions */}
-    <div style={{ display: "flex", justifyContent: "flex-end" }}>
-      <button
-        style={styles.buttonSecondary}
-        onClick={() => deleteOrder(order.id).then(loadOrders)}
-      >
-        Delete Order
-      </button>
+    <div style={{ flex: 1 }}>
+      <p style={styles.sectionTitle}>Billing Address</p>
+      <p style={styles.mutedText}>
+        {order.billingAddress?.street}<br />
+        {order.billingAddress?.city},{" "}
+        {order.billingAddress?.state}{" "}
+        {order.billingAddress?.zip}
+      </p>
     </div>
   </div>
+
+  <div style={styles.divider} />
+
+  {/* ===== Actions ===== */}
+  <div style={{ display: "flex", justifyContent: "flex-end" }}>
+    <button
+      style={styles.buttonSecondary}
+      onClick={() => deleteOrder(order.id).then(loadOrders)}
+    >
+      Delete Order
+    </button>
+  </div>
+</div>
+
 ))}
 
         </div>
