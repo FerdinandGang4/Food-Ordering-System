@@ -1,10 +1,12 @@
 import React, { useContext, useState } from "react";
 import { CartContext } from "../components/CartContext";
+import { submitPayment } from "../services/Payment_service";
 
 export default function Checkout() {
   const { cart, total, clearCart } = useContext(CartContext);
   const [form, setForm] = useState({
     name: "",
+    email: "",
     card: "",
     expiry: "",
     cvc: "",
@@ -12,34 +14,65 @@ export default function Checkout() {
   });
   const [success, setSuccess] = useState(false);
   const [processing, setProcessing] = useState(false);
+  const [message, setMessage] = useState(null);
+  const [error, setError] = useState(null);
+
+  // Force re-render when cart updates by tracking it
+  const cartTotal = total();
 
   function handleChange(e) {
     setForm(f => ({ ...f, [e.target.name]: e.target.value }));
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
+    if (cart.length === 0) {
+      setError("Your cart is empty.");
+      return;
+    }
     setProcessing(true);
-    setTimeout(() => {
-      setProcessing(false);
-      setSuccess(true);
-      clearCart();
-    }, 1500);
-  }
+    setError(null);
+    setMessage(null);
 
-  if (success) {
-    return (
-      <div className="max-w-lg mx-auto mt-16 bg-white p-8 rounded-xl shadow text-center">
-        <h2 className="text-2xl font-bold text-purple-700 mb-4">Payment Successful!</h2>
-        <p className="mb-6">Thank you for your order. Your food is on its way!</p>
-        <a href="/" className="text-purple-600 underline">Back to Home</a>
-      </div>
-    );
+    const payload = {
+      orderId: Date.now(),
+      customerId: 0,
+      customerEmail: form.email,
+      amount: Number(cartTotal.toFixed(2)),
+      currency: "YJD",
+      paymentMethod: "CREDIT_CARD",
+      nameOnCard: form.name,
+      cardNumber: form.card,
+      expiry: form.expiry,
+      cvc: form.cvc,
+      billingAddress: form.address,
+    };
+
+    try {
+      await submitPayment(payload);
+      setSuccess(true);
+      setMessage("Payment successful! Your order is on the way.");
+      clearCart();
+    } catch (err) {
+      setError("Payment failed. Please try again.");
+    } finally {
+      setProcessing(false);
+    }
   }
 
   return (
     <div className="max-w-2xl mx-auto mt-12 bg-white p-8 rounded-xl shadow">
       <h2 className="text-2xl font-bold text-purple-700 mb-6">Checkout</h2>
+      {message && (
+        <div className="mb-4 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-green-800 text-sm">
+          {message}
+        </div>
+      )}
+      {error && (
+        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-800 text-sm">
+          {error}
+        </div>
+      )}
       <div className="mb-6">
         <h3 className="font-semibold mb-2">Order Summary</h3>
         {cart.length === 0 ? (
@@ -56,10 +89,14 @@ export default function Checkout() {
         )}
         <div className="flex justify-between font-bold border-t pt-2 mt-2">
           <span>Total</span>
-          <span>${total().toFixed(2)}</span>
+          <span>${cartTotal.toFixed(2)}</span>
         </div>
       </div>
       <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block mb-1 font-medium">Email</label>
+          <input type="email" name="email" required value={form.email} onChange={handleChange} className="w-full border rounded px-3 py-2" />
+        </div>
         <div>
           <label className="block mb-1 font-medium">Name on Card</label>
           <input name="name" required value={form.name} onChange={handleChange} className="w-full border rounded px-3 py-2" />
@@ -79,7 +116,7 @@ export default function Checkout() {
           </div>
         </div>
         <div>
-          <label className="block mb-1 font-medium">Delivery Address</label>
+          <label className="block mb-1 font-medium">Billing Address</label>
           <textarea name="address" required value={form.address} onChange={handleChange} className="w-full border rounded px-3 py-2" />
         </div>
         <button type="submit" disabled={processing || cart.length === 0} className="w-full bg-gradient-to-r from-purple-600 to-purple-400 text-white px-4 py-2 rounded-lg shadow hover:scale-105 transition-transform disabled:opacity-50 font-semibold">

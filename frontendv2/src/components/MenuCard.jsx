@@ -10,7 +10,8 @@ const foodImages = {
 };
 
 export default function MenuCard({ item, onAdd }) {
-  const img = foodImages[item.name] || 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80';
+  const storedImage = localStorage.getItem(`menuItemImage_${item.id}`);
+  const img = storedImage || foodImages[item.name] || 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80';
   return (
     <article className="bg-white rounded-xl border border-slate-100 p-0 shadow-md flex flex-col hover:shadow-lg transition-shadow duration-200">
       <img src={img} alt={item.name} className="w-full h-40 object-cover rounded-t-xl" />
