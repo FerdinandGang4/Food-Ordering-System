@@ -181,24 +181,44 @@ function OrderList() {
             + Create Order
           </button>
 
-          {orders.map(order => (
-            <div key={order.id} style={styles.orderCard}>
-              <p><strong>ID:</strong> {order.id}</p>
-              <p><strong>User ID:</strong> {order.userId}</p>
-              <p>
-                <strong>Customer:</strong> {order.customerName}
-              </p>
+         {orders.map((order) => (
+  <div key={order.id} style={styles.orderCard}>
+    {/* Header */}
+    <div style={{ marginBottom: "10px" }}>
+      <h3 style={{ margin: 0, color: "#5b2d8b" }}>
+        Order #{order.id}
+      </h3>
+      <small style={{ color: "#777" }}>
+        User ID: {order.userId}
+      </small>
+    </div>
 
-              <p><strong>Total:</strong> ${order.totalPrice}</p>
+    {/* Body */}
+    <div style={{ marginBottom: "12px" }}>
+      <p style={{ margin: "6px 0" }}>
+        <strong>Customer:</strong> {order.customerName}
+      </p>
 
-              <button
-                style={styles.buttonSecondary}
-                onClick={() => deleteOrder(order.id).then(loadOrders)}
-              >
-                Delete
-              </button>
-            </div>
-          ))}
+      <p style={{ margin: "6px 0" }}>
+        <strong>Total:</strong>{" "}
+        <span style={{ fontWeight: "bold", color: "#333" }}>
+          ${order.totalPrice}
+        </span>
+      </p>
+    </div>
+
+    {/* Actions */}
+    <div style={{ display: "flex", justifyContent: "flex-end" }}>
+      <button
+        style={styles.buttonSecondary}
+        onClick={() => deleteOrder(order.id).then(loadOrders)}
+      >
+        Delete Order
+      </button>
+    </div>
+  </div>
+))}
+
         </div>
       )}
 
@@ -234,8 +254,6 @@ function OrderList() {
                 <option key={s} value={s}>{s}</option>
               ))}
             </select>
-
-           
           </div>
 
           {/* Items */}
