@@ -1,8 +1,139 @@
 
-
-
-
 import React, { useEffect, useState } from "react";
+
+// ===== Styles =====
+const styles = {
+  /* ===== Page Layout ===== */
+  page: {
+    background: "#f5f0ff",
+    minHeight: "100vh",
+    padding: "30px",
+    fontFamily: "Arial, sans-serif"
+  },
+
+  /* ===== Main Card ===== */
+  card: {
+    background: "#ffffff",
+    maxWidth: "720px",
+    margin: "auto",
+    padding: "25px",
+    borderRadius: "14px",
+    boxShadow: "0 10px 25px rgba(0,0,0,0.12)"
+  },
+
+  /* ===== Titles & Sections ===== */
+  title: {
+    color: "#5b2d8b",
+    marginBottom: "18px"
+  },
+
+  section: {
+    marginBottom: "22px"
+  },
+
+  sectionTitle: {
+    fontWeight: "bold",
+    color: "#5b2d8b",
+    marginBottom: "6px",
+    fontSize: "14px"
+  },
+
+  /* ===== Typography ===== */
+  label: {
+    display: "block",
+    fontWeight: "bold",
+    marginBottom: "6px",
+    color: "#5b2d8b"
+  },
+
+  mutedText: {
+    color: "#666",
+    fontSize: "13px",
+    lineHeight: "1.4"
+  },
+
+  /* ===== Inputs ===== */
+  input: {
+    width: "100%",
+    padding: "10px",
+    marginBottom: "12px",
+    borderRadius: "8px",
+    border: "1px solid #ccc"
+  },
+
+  row: {
+    display: "flex",
+    gap: "10px"
+  },
+
+  /* ===== Buttons ===== */
+  buttonPrimary: {
+    background: "#7b3fe4",
+    color: "#fff",
+    padding: "12px",
+    border: "none",
+    borderRadius: "8px",
+    cursor: "pointer",
+    fontWeight: "bold",
+    width: "100%"
+  },
+
+  buttonSecondary: {
+    background: "#e6dbff",
+    color: "#5b2d8b",
+    padding: "10px",
+    border: "none",
+    borderRadius: "8px",
+    cursor: "pointer"
+  },
+
+  /* ===== Order Cards ===== */
+  orderCard: {
+    border: "1px solid #ddd",
+    padding: "18px",
+    borderRadius: "12px",
+    marginBottom: "18px",
+    background: "#fff"
+  },
+
+  statusBadge: {
+    padding: "4px 10px",
+    borderRadius: "20px",
+    fontSize: "12px",
+    fontWeight: "bold",
+    textTransform: "uppercase",
+    display: "inline-block"
+  },
+
+  divider: {
+    height: "1px",
+    background: "#712525ff",
+    margin: "14px 0"
+  },
+
+  /* ===== Items Table ===== */
+  itemRow: {
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr 1fr",
+    fontSize: "13px",
+    padding: "6px 0"
+  },
+
+  itemHeader: {
+    fontWeight: "bold",
+    borderBottom: "1px solid #ddd",
+    paddingBottom: "6px",
+    marginBottom: "6px"
+  },
+
+  itemCard: {
+    background: "#a793ceff",
+    padding: "15px",
+    borderRadius: "10px",
+    marginBottom: "10px"
+  }
+};
+
 
 import {
   fetchOrders,
@@ -31,6 +162,24 @@ function OrderList() {
   const [userId, setUserId] = useState("");
   const [status, setStatus] = useState("");
   const [totalPrice, setTotalPrice] = useState("");
+  const [items, setItems] = useState([
+    { productId: "", quantity: "", price: "" }
+  ]);
+
+  const [shippingAddress, setShippingAddress] = useState({
+    street: "",
+    city: "",
+    state: "",
+    zip: ""
+  });
+
+  const [billingAddress, setBillingAddress] = useState({
+    street: "",
+    city: "",
+    state: "",
+    zip: ""
+  });
+
 
   /* ===================== LOAD ORDERS ===================== */
   useEffect(() => {
@@ -54,11 +203,17 @@ function OrderList() {
   /* ===================== CREATE ORDER ===================== */
   const handleCreateOrder = () => {
     const orderRequest = {
-      userId: Number(userId),
+      userId: parseInt(userId),
       status,
-      totalPrice: Number(totalPrice)
+      totalPrice: parseFloat(totalPrice),
+      items: items.map(i => ({
+        productId: parseInt(i.productId),
+        quantity: parseInt(i.quantity),
+        price: parseFloat(i.price)
+      })),
+      shippingAddress,
+      billingAddress
     };
-
     createOrder(orderRequest)
       .then(() => {
         loadOrders();
@@ -74,85 +229,250 @@ function OrderList() {
   if (loading) return <p style={{ padding: 20 }}>Loading orders...</p>;
 
   return (
-    <div style={{ padding: 30, background: "#f5f0ff", minHeight: "100vh" }}>
+    <div style={styles.page}>
       {view === "list" && (
-        <div style={{ maxWidth: 700, margin: "auto" }}>
+        <div style={styles.card}>
           <h2 style={{ color: "#5b2d8b" }}>Orders</h2>
 
           <button
-            style={{ marginBottom: 20 }}
+            style={styles.buttonPrimary}
             onClick={() => setView("create")}
           >
             + Create Order
           </button>
 
-          {orders.map(order => (
-            <div key={order.id} style={{ border: "1px solid #ccc", padding: 15, marginBottom: 10 }}>
-              <p><strong>ID:</strong> {order.id}</p>
-              <p><strong>User ID:</strong> {order.userId}</p>
+         {orders.map((order) => (
+  <div key={order.id} style={styles.orderCard}>
+  {/* ===== Header ===== */}
+  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+    <div>
+      <h3 style={{ margin: 0, color: "#5b2d8b" }}>
+        Order #{order.id}
+      </h3>
+      <p style={styles.mutedText}>User ID: {order.userId}</p>
+    </div>
 
-              <select
-                value={order.status}
-                onChange={e =>
-                  updateOrder(order.id, {
-                    ...order,
-                    status: e.target.value
-                  }).then(loadOrders)
-                }
-              >
-                {orderStatusOptions.map(s => (
-                  <option key={s} value={s}>{s}</option>
-                ))}
-              </select>
+    <span
+      style={{
+        ...styles.statusBadge,
+        background:
+          order.status === "DELIVERED" ? "#d4f8e8" :
+          order.status === "CANCELLED" ? "#ffe0e0" :
+          "#e6dbff",
+        color: "#5b2d8b"
+      }}
+    >
+      {order.status}
+    </span>
+  </div>
 
-              <p><strong>Total:</strong> ${order.totalPrice}</p>
+  <div style={styles.divider} />
 
-              <button
-                style={{ marginTop: 10 }}
-                onClick={() => deleteOrder(order.id).then(loadOrders)}
-              >
-                Delete
-              </button>
-            </div>
-          ))}
+  {/* ===== Order Summary ===== */}
+  <p>
+    <strong>Total Price:</strong>{" "}
+    <span style={{ fontSize: "16px", color: "#333" }}>
+      ${order.totalPrice}
+    </span>
+  </p>
+
+  {/* ===== Items ===== */}
+  <div>
+    <p style={styles.sectionTitle}>Order Items</p>
+
+    <div style={{ ...styles.itemRow, ...styles.itemHeader }}>
+      <span>Product ID</span>
+      <span>Quantity</span>
+      <span>Price</span>
+    </div>
+
+    {order.items?.map((item, index) => (
+      <div key={index} style={styles.itemRow}>
+        <span>{item.productId}</span>
+        <span>{item.quantity}</span>
+        <span>${item.price}</span>
+      </div>
+    ))}
+  </div>
+
+  <div style={styles.divider} />
+
+  {/* ===== Addresses ===== */}
+  <div style={{ display: "flex", gap: "20px" }}>
+    <div style={{ flex: 1 }}>
+      <p style={styles.sectionTitle}>Shipping Address</p>
+      <p style={styles.mutedText}>
+        {order.shippingAddress?.street}<br />
+        {order.shippingAddress?.city},{" "}
+        {order.shippingAddress?.state}{" "}
+        {order.shippingAddress?.zip}
+      </p>
+    </div>
+
+    <div style={{ flex: 1 }}>
+      <p style={styles.sectionTitle}>Billing Address</p>
+      <p style={styles.mutedText}>
+        {order.billingAddress?.street}<br />
+        {order.billingAddress?.city},{" "}
+        {order.billingAddress?.state}{" "}
+        {order.billingAddress?.zip}
+      </p>
+    </div>
+  </div>
+
+  <div style={styles.divider} />
+
+  {/* ===== Actions ===== */}
+  <div style={{ display: "flex", justifyContent: "flex-end" }}>
+    <button
+      style={styles.buttonSecondary}
+      onClick={() => deleteOrder(order.id).then(loadOrders)}
+    >
+      Delete Order
+    </button>
+  </div>
+</div>
+
+))}
+
         </div>
       )}
 
       {view === "create" && (
-        <div style={{ maxWidth: 400, margin: "auto" }}>
+        <div style={styles.card}>
           <h2>Create Order</h2>
-
-          <input
-            placeholder="User ID"
-            type="number"
-            value={userId}
-            onChange={e => setUserId(e.target.value)}
-          />
-
-          <select
-            value={status}
-            onChange={e => setStatus(e.target.value)}
+          <button
+            style={styles.buttonSecondary}
+            onClick={() => setView("list")}
           >
-            <option value="">Select Status</option>
-            {orderStatusOptions.map(s => (
-              <option key={s} value={s}>{s}</option>
+            ← Back to Orders
+          </button>
+        
+            {/* Order Info */}
+          <div style={styles.section}>
+            <label style={styles.label}>User ID</label>
+            <input
+              style={styles.input}
+              type="number"
+              placeholder="Enter user ID"
+              value={userId}
+              onChange={e => setUserId(e.target.value)}
+            />
+
+            <label style={styles.label}>Order Status</label>
+            <select
+              style={styles.input}
+              value={status}
+              onChange={e => setStatus(e.target.value)}
+            >
+              <option value="">Select status</option>
+              {orderStatusOptions.map(s => (
+                <option key={s} value={s}>{s}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Items */}
+          <div style={styles.section}>
+            <h3 style={styles.title}>Order Items</h3>
+
+            {items.map((item, index) => (
+              <div key={index} style={styles.itemCard}>
+                <div style={styles.row}>
+                  <input
+                    style={styles.input}
+                    placeholder="Product ID"
+                    type="number"
+                    value={item.productId}
+                    onChange={e => {
+                      const newItems = [...items];
+                      newItems[index].productId = e.target.value;
+                      setItems(newItems);
+                    }}
+                  />
+                  <input
+                    style={styles.input}
+                    placeholder="Quantity"
+                    type="number"
+                    value={item.quantity}
+                    onChange={e => {
+                      const newItems = [...items];
+                      newItems[index].quantity = e.target.value;
+                      setItems(newItems);
+                    }}
+                  />
+                  <input
+                    style={styles.input}
+                    placeholder="Price"
+                    type="number"
+                    value={item.price}
+                    onChange={e => {
+                      const newItems = [...items];
+                      newItems[index].price = e.target.value;
+                      setItems(newItems);
+                    }}
+                  />
+                </div>
+              </div>
             ))}
-          </select>
 
-          <input
-            placeholder="Total Price"
-            type="number"
-            value={totalPrice}
-            onChange={e => setTotalPrice(e.target.value)}
-          />
+            <button
+              style={styles.buttonSecondary}
+              onClick={() =>
+                setItems([...items, { productId: "", quantity: "", price: "" }])
+              }
+            >
+              + Add Item
+            </button>
+          </div>
 
-          <button onClick={handleCreateOrder}>
+          {/* Shipping Address */}
+          <div style={styles.section}>
+            <h3 style={styles.title}>Shipping Address</h3>
+            <input style={styles.input} placeholder="Street"
+              value={shippingAddress.street}
+              onChange={e => setShippingAddress({ ...shippingAddress, street: e.target.value })} />
+            <input style={styles.input} placeholder="City"
+              value={shippingAddress.city}
+              onChange={e => setShippingAddress({ ...shippingAddress, city: e.target.value })} />
+            <input style={styles.input} placeholder="State"
+              value={shippingAddress.state}
+              onChange={e => setShippingAddress({ ...shippingAddress, state: e.target.value })} />
+            <input style={styles.input} placeholder="ZIP Code"
+              value={shippingAddress.zip}
+              onChange={e => setShippingAddress({ ...shippingAddress, zip: e.target.value })} />
+          </div>
+
+          {/* Billing Address */}
+          <div style={styles.section}>
+            <h3 style={styles.title}>Billing Address</h3>
+            <input style={styles.input} placeholder="Street"
+              value={billingAddress.street}
+              onChange={e => setBillingAddress({ ...billingAddress, street: e.target.value })} />
+            <input style={styles.input} placeholder="City"
+              value={billingAddress.city}
+              onChange={e => setBillingAddress({ ...billingAddress, city: e.target.value })} />
+            <input style={styles.input} placeholder="State"
+              value={billingAddress.state}
+              onChange={e => setBillingAddress({ ...billingAddress, state: e.target.value })} />
+            <input style={styles.input} placeholder="ZIP Code"
+              value={billingAddress.zip}
+              onChange={e => setBillingAddress({ ...billingAddress, zip: e.target.value })} />
+          </div>
+
+          <label style={styles.label}>Total Price</label>
+            <input
+              style={styles.input}
+              type="number"
+              placeholder="Total amount"
+              value={totalPrice}
+              onChange={e => setTotalPrice(e.target.value)}
+            />
+
+          <button onClick={handleCreateOrder} style={styles.buttonPrimary}>
             Save
           </button>
 
-          <button onClick={() => setView("list")}>
-            Back
-          </button>
         </div>
       )}
     </div>
