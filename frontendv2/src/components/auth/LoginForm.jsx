@@ -23,10 +23,7 @@ export default function LoginForm() {
                 password
             });
 
-            //console.log(response.data);
             Object.entries(response.data).forEach(([key,value])=>{
-                //console.log(`${key}: ${value}`);
-                // saving all response data one by one
                 localStorage.setItem(key,value);
             })
             // Save token
