@@ -20,8 +20,8 @@ import java.util.Date;
 @Component
 public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
 
-    //@Value("${jwt.secret}")
-    private final String secret ="mysecretkey12345678901hfkjhkjdhkhksjdgfhjgjdkjkhfkdh23456";
+    @Value("${jwt.secret}")
+    private String secret;
     private Key getSigningKey() {
         return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
@@ -31,7 +31,6 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
 
         String path = exchange.getRequest().getURI().getPath();
 
-        // Allow auth service without token
         if (path.startsWith("/auth/")) {
             return chain.filter(exchange);
         }
@@ -53,7 +52,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
 
             Claims claims = claimsJws.getBody();
 
-            // this is checking the token expiration manually
+            // this is checking the token expiration
             Date expiration = claims.getExpiration();
             if (expiration.before(new Date())) {
                 exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
