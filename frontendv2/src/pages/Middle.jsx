@@ -15,7 +15,6 @@ function Middle() {
 
   const { addItem } = useContext(CartContext);
 
-  // Load data — try API if configured, otherwise use mock data
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -34,7 +33,6 @@ function Middle() {
         }));
         setRestaurants(restaurantsWithImages);
 
-        // Fetch menus for all restaurants
         const allMenus = [];
         for (const r of restaurantsWithImages) {
           try {

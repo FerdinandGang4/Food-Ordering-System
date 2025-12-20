@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { fetchMenuByRestaurant, createMenuItem, updateMenuItem, deleteMenuItem } from "../services/Restaurant_service";
 
-// Assume restaurantId is 1 for now (in a real app, get from auth or props)
 const restaurantId = 1;
 
-// Mock initial menu data
 const initialMenuItems = [
   { id: 1, name: "Spaghetti Carbonara", description: "Classic Roman pasta", price: 12.5, category: "Pasta" },
   { id: 2, name: "Cheeseburger", description: "Beef patty with cheese", price: 9.5, category: "Burgers" },
@@ -13,7 +11,7 @@ const initialMenuItems = [
 export default function VendorMenu() {
   const [menuItems, setMenuItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [editing, setEditing] = useState(null); // id or null
+  const [editing, setEditing] = useState(null);
   const [form, setForm] = useState({ name: "", description: "", price: "", category: "" });
   const [showForm, setShowForm] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
@@ -33,7 +31,7 @@ export default function VendorMenu() {
       })
       .catch(err => {
         console.error("Error fetching menu items:", err);
-        setMenuItems(initialMenuItems); // fallback
+        setMenuItems(initialMenuItems);
         setLoading(false);
       });
   };

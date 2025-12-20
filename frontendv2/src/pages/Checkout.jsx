@@ -1,8 +1,10 @@
-import React, { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { CartContext } from "../components/CartContext";
 import { submitPayment } from "../services/Payment_service";
 
 export default function Checkout() {
+  const navigate = useNavigate();
   const { cart, total, clearCart } = useContext(CartContext);
   const [form, setForm] = useState({
     name: "",
@@ -17,8 +19,14 @@ export default function Checkout() {
   const [message, setMessage] = useState(null);
   const [error, setError] = useState(null);
 
-  // Force re-render when cart updates by tracking it
   const cartTotal = total();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+    }
+  }, [navigate]);
 
   function handleChange(e) {
     setForm(f => ({ ...f, [e.target.name]: e.target.value }));
@@ -36,10 +44,10 @@ export default function Checkout() {
 
     const payload = {
       orderId: Date.now(),
-      customerId: 0,
+      customerId: localStorage.getItem("userId") || Number(cartTotal.toFixed(0)),
       customerEmail: form.email,
       amount: Number(cartTotal.toFixed(2)),
-      currency: "YJD",
+      currency: "USD",
       paymentMethod: "CREDIT_CARD",
       nameOnCard: form.name,
       cardNumber: form.card,
@@ -52,6 +60,14 @@ export default function Checkout() {
       await submitPayment(payload);
       setSuccess(true);
       setMessage("Payment successful! Your order is on the way.");
+      setForm({
+        name: "",
+        email: "",
+        card: "",
+        expiry: "",
+        cvc: "",
+        address: "",
+      });
       clearCart();
     } catch (err) {
       setError("Payment failed. Please try again.");
