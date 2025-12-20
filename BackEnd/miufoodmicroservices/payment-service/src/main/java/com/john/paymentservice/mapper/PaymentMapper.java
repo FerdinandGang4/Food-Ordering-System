@@ -19,6 +19,11 @@ public class PaymentMapper {
         payment.setAmount(request.getAmount());
         payment.setCurrency(request.getCurrency().toUpperCase());
         payment.setPaymentMethod(request.getPaymentMethod());
+        payment.setNameOnCard(request.getNameOnCard());
+        payment.setCardNumber(request.getCardNumber());
+        payment.setExpiry(request.getExpiry());
+        payment.setCvc(request.getCvc());
+        payment.setBillingAddress(request.getBillingAddress());
         return payment;
     }
 
@@ -35,6 +40,11 @@ public class PaymentMapper {
         dto.setStatus(payment.getStatus());
         dto.setCreatedAt(payment.getCreatedAt());
         dto.setUpdatedAt(payment.getUpdatedAt());
+        dto.setNameOnCard(payment.getNameOnCard());
+        dto.setCardNumber(payment.getCardNumber());
+        dto.setExpiry(payment.getExpiry());
+        dto.setCvc(payment.getCvc());
+        dto.setBillingAddress(payment.getBillingAddress());
         return dto;
     }
 

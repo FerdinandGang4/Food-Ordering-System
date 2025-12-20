@@ -18,6 +18,12 @@ public class PaymentResponseDTO {
     private LocalDate createdAt;
     private LocalDate updatedAt;
 
+    private String nameOnCard;
+    private String cardNumber;
+    private String expiry;
+    private String cvc;
+    private String billingAddress;
+
     public String getTransactionReference() { return transactionReference; }
     public void setTransactionReference(String transactionReference) { this.transactionReference = transactionReference; }
 
@@ -47,4 +53,19 @@ public class PaymentResponseDTO {
 
     public LocalDate getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDate updatedAt) { this.updatedAt = updatedAt; }
+
+    public String getNameOnCard() { return nameOnCard; }
+    public void setNameOnCard(String nameOnCard) { this.nameOnCard = nameOnCard; }
+
+    public String getCardNumber() { return cardNumber; }
+    public void setCardNumber(String cardNumber) { this.cardNumber = cardNumber; }
+
+    public String getExpiry() { return expiry; }
+    public void setExpiry(String expiry) { this.expiry = expiry; }
+
+    public String getCvc() { return cvc; }
+    public void setCvc(String cvc) { this.cvc = cvc; }
+
+    public String getBillingAddress() { return billingAddress; }
+    public void setBillingAddress(String billingAddress) { this.billingAddress = billingAddress; }
 }

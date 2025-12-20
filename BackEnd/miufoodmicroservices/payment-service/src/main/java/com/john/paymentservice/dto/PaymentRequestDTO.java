@@ -36,6 +36,16 @@ public class PaymentRequestDTO {
     @NotNull
     private PaymentMethod paymentMethod;
 
+    private String nameOnCard;
+
+    private String cardNumber;
+
+    private String expiry;
+
+    private String cvc;
+
+    private String billingAddress;
+
     public Long getOrderId() {
         return orderId;
     }
@@ -84,4 +94,43 @@ public class PaymentRequestDTO {
         this.currency = currency;
     }
 
+    public String getNameOnCard() {
+        return nameOnCard;
+    }
+
+    public void setNameOnCard(String nameOnCard) {
+        this.nameOnCard = nameOnCard;
+    }
+
+    public String getCardNumber() {
+        return cardNumber;
+    }
+
+    public void setCardNumber(String cardNumber) {
+        this.cardNumber = cardNumber;
+    }
+
+    public String getExpiry() {
+        return expiry;
+    }
+
+    public void setExpiry(String expiry) {
+        this.expiry = expiry;
+    }
+
+    public String getCvc() {
+        return cvc;
+    }
+
+    public void setCvc(String cvc) {
+        this.cvc = cvc;
+    }
+
+    public String getBillingAddress() {
+        return billingAddress;
+    }
+
+    public void setBillingAddress(String billingAddress) {
+        this.billingAddress = billingAddress;
+    }
 }

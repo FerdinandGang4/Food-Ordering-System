@@ -12,27 +12,32 @@ CREATE TABLE payment (
 	currency VARCHAR(10) NOT NULL,
 	payment_method VARCHAR(32) NOT NULL,
 	status VARCHAR(32) NOT NULL,
+	name_on_card VARCHAR(255),
+	card_number VARCHAR(19),
+	expiry VARCHAR(5),
+	cvc VARCHAR(4),
+	billing_address TEXT,
 	created_at DATE NOT NULL,
 	updated_at DATE NOT NULL
 );
 
 -- Dummy data
 INSERT INTO payment (id, transaction_reference, order_id, customer_id, customer_email, amount,
-	currency, payment_method, status, created_at, updated_at)
+	currency, payment_method, status, name_on_card, card_number, expiry, cvc, billing_address, created_at, updated_at)
 VALUES ('123e4567-e89b-12d3-a456-426614174000', 'TXN-REF-001', 1, 1, 'alice@example.com', 49.99,
-	'USD', 'CREDIT_CARD', 'SUCCESS', '2025-12-01', '2025-12-01');
+	'USD', 'CREDIT_CARD', 'SUCCESS', 'Alice Johnson', '4111111111111111', '12/26', '123', '123 Main St, Anytown, USA', '2025-12-01', '2025-12-01');
 
 INSERT INTO payment (id, transaction_reference, order_id, customer_id, customer_email, amount,
-	currency, payment_method, status, created_at, updated_at)
+	currency, payment_method, status, name_on_card, card_number, expiry, cvc, billing_address, created_at, updated_at)
 VALUES ('123e4567-e89b-12d3-a456-426614174002', 'TXN-REF-002', 2, 2, 'dave@example.com', 19.50,
-	'USD', 'PAYPAL', 'FAILED', '2025-12-03', '2025-12-03');
+	'USD', 'PAYPAL', 'FAILED', NULL, NULL, NULL, NULL, NULL, '2025-12-03', '2025-12-03');
 
 INSERT INTO payment (id, transaction_reference, order_id, customer_id, customer_email, amount,
-	currency, payment_method, status, created_at, updated_at)
+	currency, payment_method, status, name_on_card, card_number, expiry, cvc, billing_address, created_at, updated_at)
 VALUES ('123e4567-e89b-12d3-a456-426614174003', 'TXN-REF-003', 3, 3, 'bob@example.com', 120.00,
-	'EUR', 'APPLE_PAY', 'PENDING', '2025-12-05', '2025-12-05');
+	'EUR', 'APPLE_PAY', 'PENDING', NULL, NULL, NULL, NULL, NULL, '2025-12-05', '2025-12-05');
 
 INSERT INTO payment (id, transaction_reference, order_id, customer_id, customer_email, amount,
-	currency, payment_method, status, created_at, updated_at)
+	currency, payment_method, status, name_on_card, card_number, expiry, cvc, billing_address, created_at, updated_at)
 VALUES ('223e4567-e89b-12d3-a456-426614174006', 'TXN-REF-004', 4, 4, 'carol@example.com', 75.25,
-	'GBP', 'BANK_TRANSFER', 'SUCCESS', '2025-12-06', '2025-12-06');
+	'GBP', 'BANK_TRANSFER', 'SUCCESS', NULL, NULL, NULL, NULL, NULL, '2025-12-06', '2025-12-06');
